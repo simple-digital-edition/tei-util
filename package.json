@@ -1,0 +1,25 @@
+{
+  "name": "tei-util",
+  "version": "0.0.2",
+  "description": "Utility functions for dealing with TEI in JavaScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simple-digital-edition/tei-util.git"
+  },
+  "keywords": [
+    "tei",
+    "typescript"
+  ],
+  "author": "Mark Hall <mark.hall@work.room3b.eu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simple-digital-edition/tei-util/issues"
+  },
+  "homepage": "https://github.com/simple-digital-edition/tei-util#readme",
+  "devDependencies": {
+    "deepcopy": "^2.1.0",
+    "typescript": "^4.5.4"
+  }
+}
