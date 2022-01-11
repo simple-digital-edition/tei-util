@@ -1,4 +1,5 @@
-import { TEIConfig, TEIConfigSection, TEITextNode, TEIMetadataNode, TEIDocument, TEITextDocumentCollection } from './types';
+import deepcopy from 'deepcopy';
+import type { TEIConfig, TEIConfigSection, TEITextNode, TEIMetadataNode, TEIDocument, TEITextDocumentCollection } from './types';
 
 type NodeRule = {
     rule: string;
@@ -185,7 +186,7 @@ export class TEIParser {
             },
             nested: {},
         } as TEITextDocumentCollection;
-        this.walkTextDocument(root, doc, doc.main as TEITextNode, (node: Element) => {
+        this.walkTextDocument(root, doc, [doc.main as TEITextNode], (node: Element) => {
             let markObj = null as TEITextNode | null;
             for (let rule of this.nodeRules) {
                 if (xpath.firstNode(node, 'self::' + rule.rule)) {
@@ -261,7 +262,7 @@ export class TEIParser {
         return doc;
     }
 
-    walkTextDocument(node: Element, container: TEITextDocumentCollection, parent: TEITextNode, callback: (node:Element) => TEITextNode | null) {
+    walkTextDocument(node: Element, container: TEITextDocumentCollection, parents: TEITextNode[], callback: (node:Element) => TEITextNode | null) {
         const obj = callback(node);
         if (obj) {
             if (obj.nested && container.nested) {
@@ -277,26 +278,50 @@ export class TEIParser {
                     } as TEITextNode,
                 };
                 for (let child of node.children) {
-                    this.walkTextDocument(child, container, obj, callback);
+                    this.walkTextDocument(child, container, parents.concat([obj]), callback);
                 }
             } else {
                 delete obj['nested'];
-                if (parent.type === 'text') {
-                    if (obj.text) {
-                        parent.text = obj.text;
-                    }
-                    if (obj.marks) {
-                        for (let mark of obj.marks) {
-                            parent.marks.push(mark);
+                let parent = parents[parents.length - 1];
+                if (obj.type === 'text') {
+                    if (parent.type === 'text') {
+                        if (obj.text) {
+                            parent.text = obj.text;
                         }
-                    }
-                    for (let child of node.children) {
-                        this.walkTextDocument(child, container, parent, callback);
+                        if (obj.marks) {
+                            for (let mark of obj.marks) {
+                                parent.marks.push(mark);
+                            }
+                        }
+                        const parentBase = deepcopy(parent);
+                        for (let idx = 0; idx < node.children.length; idx++) {
+                            const child = node.children[idx];
+                            if (idx === 0) {
+                                this.walkTextDocument(child, container, parents, callback);
+                            } else {
+                                const newParent = deepcopy(parentBase);
+                                parents[parents.length - 2].content.push(newParent);
+                                this.walkTextDocument(child, container, parents.slice(0, parents.length - 1).concat([newParent]), callback);
+                            }
+                        }
+                    } else {
+                        parent.content.push(obj);
+                        const parentBase = deepcopy(obj);
+                        for (let idx = 0; idx < node.children.length; idx++) {
+                            const child = node.children[idx];
+                            if (idx === 0) {
+                                this.walkTextDocument(child, container, parents.concat([obj]), callback);
+                            } else {
+                                const newParent = deepcopy(parentBase);
+                                parents[parents.length - 1].content.push(newParent);
+                                this.walkTextDocument(child, container, parents.concat([newParent]), callback);
+                            }
+                        }
                     }
                 } else {
                     parent.content.push(obj);
                     for (let child of node.children) {
-                        this.walkTextDocument(child, container, obj, callback);
+                        this.walkTextDocument(child, container, parents.concat([obj]), callback);
                     }
                 }
             }

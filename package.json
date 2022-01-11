@@ -1,6 +1,6 @@
 {
   "name": "tei-util",
-  "version": "0.0.2",
+  "version": "0.0.7",
   "description": "Utility functions for dealing with TEI in JavaScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,12 @@
   },
   "homepage": "https://github.com/simple-digital-edition/tei-util#readme",
   "devDependencies": {
-    "deepcopy": "^2.1.0",
     "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "deepcopy": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@tiptap/core": "^2.0.0-beta.162"
   }
 }
