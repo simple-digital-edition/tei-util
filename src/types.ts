@@ -30,6 +30,7 @@ export type TEIConfigAttribute = {
     name: string;
     parse: TEIConfigParse;
     serialise: TEIConfigSerialiseAttribute;
+    default?: string;
 }
 
 export type TEIConfigParse = {
