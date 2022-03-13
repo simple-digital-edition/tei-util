@@ -221,15 +221,35 @@ export class TEISerialiser {
                 if (markElements.length > 0) {
                     markElements.sort(([elementA, schemaA], [elementB, schemaB]) => {
                         if (schemaA.serialise.weight && schemaB.serialise.weight) {
-                            if (schemaA.serialise.weight > schemaB.serialise.weight) {
+                            if (schemaA.serialise.weight > 0 && schemaB.serialise.weight > 0) {
+                                if (schemaA.serialise.weight > schemaB.serialise.weight) {
+                                    return 1;
+                                } else if (schemaA.serialise.weight < schemaB.serialise.weight) {
+                                    return -1;
+                                }
+                            } else if (schemaA.serialise.weight < 0 && schemaB.serialise.weight < 0) {
+                                if (schemaA.serialise.weight > schemaB.serialise.weight) {
+                                    return -1;
+                                } else if (schemaA.serialise.weight < schemaB.serialise.weight) {
+                                    return 1;
+                                }
+                            } else if (schemaA.serialise.weight < 0 && schemaB.serialise.weight > 0) {
                                 return 1;
-                            } else if (schemaA.serialise.weight < schemaB.serialise.weight) {
+                            } else if (schemaA.serialise.weight > 0 && schemaB.serialise.weight < 0) {
                                 return -1;
                             }
                         } else if (schemaA.serialise.weight) {
-                            return -1;
+                            if (schemaA.serialise.weight > 0) {
+                                return -1;
+                            } else if (schemaA.serialise.weight < 0) {
+                                return 1;
+                            }
                         } else if (schemaB.serialise.weight) {
-                            return 1;
+                            if (schemaB.serialise.weight > 0) {
+                                return 1;
+                            } else if (schemaB.serialise.weight < 0) {
+                                return -1;
+                            }
                         }
                         if (elementA.tag > elementB.tag) {
                             return 1;
